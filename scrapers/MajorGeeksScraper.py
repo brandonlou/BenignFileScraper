@@ -1,9 +1,10 @@
 from .BaseScraper import BaseScraper
 from time import sleep
+from selenium.webdriver.common.by import By
 
 
 START_PAGE = 0
-LAST_PAGE = 1884
+LAST_PAGE = 2053
 
 class MajorGeeksScraper(BaseScraper):
 
@@ -14,18 +15,20 @@ class MajorGeeksScraper(BaseScraper):
             print(f'Getting {page_link}')
             self.driver.get(page_link)
             file_links = []
-            geekytitles = self.driver.find_elements_by_class_name('geekytitle')
+            geekytitles = self.driver.find_elements(By.CLASS_NAME, 'geekytitle')
             for geekytitle in geekytitles:
-                a = geekytitle.find_element_by_tag_name('a')
+                a = geekytitle.find_element(By.TAG_NAME, 'a')
                 file_link = a.get_attribute('href')
                 file_links.append(file_link)
             for file_link in file_links:
-                if file_link in seen_files: # Don't repeat downloads
+                if file_link in seen_files: #Don't repeat downloads
                     continue
-                print(f'Getting {file_link}')
                 seen_files.add(file_link)
+                print(f'Getting {file_link}')
+                self.driver.get(file_link)
+                category = self.driver.find_element(By.CLASS_NAME, 'navigation').find_elements(By.TAG_NAME, 'a')[1].text
                 file_name = file_link[41:-5]
-                self.driver.get(f'https://www.majorgeeks.com/mg/getmirror/{file_name},1.html')
-                sleep(30)
-        sleep(120) # Wait for last download to complete
-
+                download_link = f'https://www.majorgeeks.com/mg/getmirror/{file_name},1.html'
+                success = self.download(download_link, category)
+                if not success:
+                    self.download('https://www.majorgeeks.com/index.php?ct=files&action=download&', category)
