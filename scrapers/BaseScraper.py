@@ -36,7 +36,8 @@ class BaseScraper:
         if click:
             try:
                 download_link.click()
-            except ElementClickInterceptedException:
+            except ElementClickInterceptedException as e:
+                print(e)
                 return False
 
         # Most downloads are available via a URL however
@@ -44,8 +45,8 @@ class BaseScraper:
             print(f'Downloading {download_link}')
             try:
                 self.driver.get(download_link)
-            except TimeoutException:
-                print('Download failed')
+            except TimeoutException as e:
+                print(e)
                 return False
 
         start_time = time.time()
@@ -82,8 +83,8 @@ class BaseScraper:
                 new_filepath = f'{self.download_dir}/{file_hash}{file_extension}'
             try:
                 os.rename(old_filepath, new_filepath)
-            except FileNotFoundError:
-                print('Download failed')
+            except FileNotFoundError as e:
+                print(e)
                 return False
             print(f'Downloaded as {new_filepath}')
 
