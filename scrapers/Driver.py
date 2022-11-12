@@ -17,7 +17,9 @@ class Driver:
         options.add_argument('--dns-prefetch-disable')
         if headless:
             options.add_argument('--headless')
-        options.add_extension('/Users/brandon/Downloads/ublock.crx')
+        adblocker_path = os.environ.get('ADBLOCKER_PATH')
+        if adblocker_path is not None:
+            options.add_extension(adblocker_path)
         prefs = {'download.default_directory': download_dir}
         options.add_experimental_option('prefs', prefs)
         options.add_experimental_option('excludeSwitches', ['enable-automation']) # Doesn't seem to work
