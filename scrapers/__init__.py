@@ -1,4 +1,3 @@
-from .DownloadCrewScraper import DownloadCrewScraper
 from .FileForumScraper import FileForumScraper
-from .MajorGeeksScraper import MajorGeeksScraper
-
+from .PortableFreewareScraper import PortableFreewareScraper
+from .CNETScraper import CNETScraper
