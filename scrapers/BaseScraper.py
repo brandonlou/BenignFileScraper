@@ -1,11 +1,12 @@
 from .Driver import Driver
+import errno
 import hashlib
 import os
 import pathlib
 import time
 from selenium.common.exceptions import ElementClickInterceptedException, InvalidArgumentException, TimeoutException
 
-DOWNLOAD_TIMEOUT = 90 #Seconds
+DOWNLOAD_TIMEOUT = 90 # Seconds
 
 
 class BaseScraper:
@@ -91,6 +92,14 @@ class BaseScraper:
             except FileNotFoundError as e:
                 print(e)
                 return False
+            except OSError as e:
+                print(e)
+                if e.errno == errno.ENAMETOOLONG:
+                    new_filepath = f'{self.download_dir}/{file_hash}{file_extension}'
+                    os.rename(old_filepath, new_filepath)
+                else:
+                    return False
+
             print(f'Downloaded as {new_filepath}')
 
         return download_success
