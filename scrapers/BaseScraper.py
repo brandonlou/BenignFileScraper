@@ -3,7 +3,7 @@ import hashlib
 import os
 import pathlib
 import time
-from selenium.common.exceptions import ElementClickInterceptedException, TimeoutException
+from selenium.common.exceptions import ElementClickInterceptedException, InvalidArgumentException, TimeoutException
 
 DOWNLOAD_TIMEOUT = 90 #Seconds
 
@@ -21,9 +21,14 @@ class BaseScraper:
         h = hashlib.sha256()
         b = bytearray(128 * 1024)
         mv = memoryview(b)
-        with open(filepath, 'rb', buffering=0) as f:
-            while n := f.readinto(mv):
-                h.update(mv[:n])
+        try:
+            f = open(filepath, 'rb', buffering=0)
+        except FileNotFoundError as e:
+            print(e)
+            return filepath
+        while n := f.readinto(mv):
+            h.update(mv[:n])
+        f.close()
         return h.hexdigest()
 
     def download(self, download_link, prefix=None, click=False):
@@ -45,7 +50,7 @@ class BaseScraper:
             print(f'Downloading {download_link}')
             try:
                 self.driver.get(download_link)
-            except TimeoutException as e:
+            except (InvalidArgumentException, TimeoutException) as e:
                 print(e)
                 return False
 
@@ -61,7 +66,7 @@ class BaseScraper:
             new_files = [f for f in files_after if not f in files_before]
 
             # Found at least one new file. Download success!
-            if len(new_files) > 0 and not new_files[0].endswith('.crdownload'):
+            if len(new_files) > 0 and not new_files[0].endswith('.crdownload') and not new_files[0].startswith('.com.google.Chrome'):
                 download_success = True
                 break
 
